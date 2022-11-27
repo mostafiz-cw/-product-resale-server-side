@@ -1,5 +1,7 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const cors = require("cors");
+const { MongoClient, ServerApiVersion } = require("mongodb");
+require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -8,16 +10,36 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/", async(req,res) => {
-    res.send("server is running");
+// mongodb
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gk5zoez.mongodb.net/?retryWrites=true&w=majority`;
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
 });
 
+async function run() {
+  try {
+    const catagories = client.db("allcategories").collection("catagory");
 
+    app.get("/", async (req, res) => {
+      const query = {};
+      const options = await catagories.find(query).toArray();
+      res.send(options);
+    });
 
+    
 
+  } finally {
+  }
+}
+run().catch(console.log);
 
+app.get("/", async (req, res) => {
+  res.send("server is running");
+});
 
-
-app.listen(port,() => {
-    console.log("server is running on " + port);
-})
+app.listen(port, () => {
+  console.log("server is running on " + port);
+});
