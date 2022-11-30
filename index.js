@@ -25,6 +25,16 @@ async function run() {
     const cards = client.db("catagories").collection("allcard");
     const myOrder = client.db("myorder").collection("orders");
 
+    // get user specific order list
+    app.get("/myorder", async (req,res) => {
+      // console.log(req.query);
+      const email = req.query.email;
+      // console.log(email);
+      const query = {email : email};
+      const myOrderGet = await myOrder.find(query).toArray();
+      res.send(myOrderGet);
+    });
+  
     app.get("/", async (req, res) => {
       const query = {};
       const options = await catagories.find(query).toArray();
@@ -38,23 +48,23 @@ async function run() {
       const cursor = cards.find(query);
       const allcard = await cursor.toArray();
       res.send(allcard);
-      console.log(id);
+      // console.log(id);
     });
+
+    // 
+    
 
     // post my order details
     app.post("/myorder", async (req, res) => {
       const myOrderObj = req.body;
+      console.log(myOrderObj);
       const result = await myOrder.insertOne(myOrderObj);
       res.send(result);
     });
 
     // get my order details
-    app.get("/myorder", async (req,res) => {
-      const email = req.query.email;
-      const query = {email : email};
-      const myOrderGet = await myOrder.find(query).toArray();
-    });
-  } finally {
+    
+  } catch {
   }
 }
 run().catch(console.log);
