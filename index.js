@@ -24,6 +24,7 @@ async function run() {
     const catagories = client.db("allcategories").collection("catagory");
     const cards = client.db("catagories").collection("allcard");
     const myOrder = client.db("myorder").collection("orders");
+    const userCollection = client.db("userCollection").collection("users");
 
     // get user specific order list
     app.get("/myorder", async (req,res) => {
@@ -62,7 +63,14 @@ async function run() {
       res.send(result);
     });
 
-    // get my order details
+    // post user info details
+    app.post("/users", async (req,res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+  
     
   } catch {
   }
