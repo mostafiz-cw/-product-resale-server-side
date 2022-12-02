@@ -44,6 +44,7 @@ async function run() {
     const cards = client.db("catagories").collection("allcard");
     const myOrder = client.db("myorder").collection("orders");
     const userCollection = client.db("userCollection").collection("users");
+    const addproduct = client.db("addproduct").collection("products");
 
     // get user specific order list
     app.get("/myorder", verifyJWT, async (req, res) => {
@@ -59,26 +60,35 @@ async function run() {
       res.send(myOrderGet);
     });
 
-    // get all user details
-    app.get("/users", async (req, res)=>{
-      const query = {};
-      const users = await userCollection.find(query).toArray();
-      res.send(users);
-    });
-
-    // get admin details
-    app.get("/users/admin/:email", async (req, res)=>{
-      const email = req.params.email;
-      const query = {email};
-      const admin = await userCollection.findOne(query);
-      res.send({isadmin: admin?.role === "Admin"});
-    });
-
     // get catagory list
     app.get("/", async (req, res) => {
       const query = {};
       const options = await catagories.find(query).toArray();
       res.send(options);
+    });
+
+    // get all user details
+    app.get("/users", async (req, res) => {
+      const query = {};
+      const users = await userCollection.find(query).toArray();
+      res.send(users);
+    });
+
+    // get all buyer details
+    app.get("/allbuyer/:role", async (req, res) => {
+      const role = req.params.role;
+      const query = { role };
+      const sellers = await userCollection.find(query).toArray();
+      res.send(sellers);
+    });
+
+    // get admin details
+    app.get("/users/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const admin = await userCollection.findOne(query);
+      // res.send({isadmin: admin?.role === "Admin"});
+      res.send({ isadmin: admin?.role });
     });
 
     // jwt tokent
@@ -105,7 +115,14 @@ async function run() {
       // console.log(id);
     });
 
-    //
+    // get seller my products details 
+    app.get("/dashboard/myproducts/:email", async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = { email };
+      const myProducts = await addproduct.find(query).toArray();
+      res.send(myProducts);
+    });
 
     // post my order details
     app.post("/myorder", async (req, res) => {
@@ -119,6 +136,13 @@ async function run() {
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await userCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // post add products to database
+    app.post("/dashboard/addproduct", async (req, res) => {
+      const products = req.body;
+      const result = await addproduct.insertOne(products);
       res.send(result);
     });
   } catch {}
